@@ -1,20 +1,30 @@
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+require('dotenv').config()
+const express = require('express')
+const mongoose = require('mongoose')
+const logger = require('morgan')
+const bodyParser = require('body-parser')
+const app = express()
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+mongoose.connect(process.env.MONGODB_URI)
 
-var app = express();
+const db = mongoose.connection
+db.on('error', err => {
+  console.log(err)
+})
 
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+db.on('open', () => {
+  console.log('Connected to MongoDB')
+})
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use(logger('dev'))
+app.use(bodyParser.json())
 
-module.exports = app;
+app.get('/', (req, res) => {
+  res.send("Hello World")
+})
+
+const PORT = process.env.PORT || 3001
+
+app.listen(PORT, () => {
+  console.log('App is up and running on port ' + PORT)
+})
